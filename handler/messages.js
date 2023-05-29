@@ -36,9 +36,9 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
         logging("error", "Error Get Metadata Group", err);
       }
       const filteredUsers = users.filter((user) => !contacts.includes(user));
-      const dataUsers = groupParticipants.filter(
-        (part) => !filteredUsers.includes(part)
-      );
+      const dataUsers = groupParticipants
+        ? groupParticipants.filter((part) => !filteredUsers.includes(part))
+        : null;
 
       if (msg.message) {
         /*///////
@@ -51,7 +51,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*//////
            * {*} Get Info Groups {*}
            * //*/
-          const regexInfo = new RegExp(/^\!Info/i);
+          const regexInfo = new RegExp(/^\.Info/i);
           if (regexInfo.test(msgTxt)) {
             logging("info", `Get Message`, msgTxt);
             try {
@@ -67,11 +67,11 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*//////
            * {*} Start Broadcast Fitur {*}
            * //*/
-          const regexBc = new RegExp(/^\!Bc/i);
+          const regexBc = new RegExp(/^\.Bc/i);
           if (regexBc.test(msgTxt)) {
             logging("info", "Get Message", msgTxt);
             try {
-              const broadcastTxt = msgTxt.replace(/^\!Bc\s*/i, "");
+              const broadcastTxt = msgTxt.replace(/^\.Bc\s*/i, "");
               let sent = 0;
               const loopBroadcast = setInterval(async () => {
                 if (dataUsers.length === sent) {
@@ -103,11 +103,11 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*//////
            * {*} Clone Group {*}
            * //*/
-          const cloneRegex = new RegExp(/^\!Clone/i);
+          const cloneRegex = new RegExp(/^\.Clone/i);
           if (cloneRegex.test(msgTxt)) {
             logging("info", "Get Message", msgTxt);
             try {
-              const nameGroup = msgTxt.replace(/^\!Clone\s*/i, "");
+              const nameGroup = msgTxt.replace(/^\.Clone\s*/i, "");
               const groupPict = readFileSync(
                 join(__dirname, "../groupPict.jpeg")
               );
@@ -164,7 +164,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
            * {*} Broadcast With Image Message
            * //*/
           const caption = msg.message.imageMessage.caption;
-          const bcRegex = new RegExp(/^\!Bc\s(.+)/i);
+          const bcRegex = new RegExp(/^\.Bc\s(.+)/i);
           if (bcRegex.test(caption)) {
             logging("info", "Get Message", caption);
             const img = await downloadMediaMessage(
@@ -174,7 +174,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
               { logger }
             );
             writeFileSync(join(__dirname, "../broadcast.jpeg"), img);
-            const broadcastTxt = caption.replace(/^\!Bc\s*/i, "");
+            const broadcastTxt = caption.replace(/^\.Bc\s*/i, "");
             const broadcastImg = readFileSync(
               join(__dirname, "../broadcast.jpeg")
             );
@@ -212,7 +212,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*///////
            * {*} Create Sticker {*}
            */ //*/
-          const stickerRegex = new RegExp(/^\!Sticker/i);
+          const stickerRegex = new RegExp(/^\.Sticker/i);
           if (stickerRegex.test(caption)) {
             logging("info", "Get Message", caption);
             try {
@@ -260,10 +260,10 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*///////
            * {*} Start Me {*}
            */ //*/
-          const meRegex = new RegExp(/^\!Me/i);
+          const meRegex = new RegExp(/^\.menu/i);
           if (meRegex.test(msgTxt)) {
             try {
-              const templateText = `*Reyna ヅ* | All Fitures\n\n*_Groups Chat:_*\n• !Info = Group Information\n• !Bc [your message] = Broadcast (Broadcast on all anggota group)\n• !Bc [your message] = Broadcast (Broadcast on all anggota group with images)\n• !Clone [new group name] = Cloning Group With All Member\n• !Sticker = Creating Sticker On Group (with images)\n\n*_Private Chat_*\n• !Me = Show fitures\n• !Restart = Restart server\n• !Bc [your message] = Broadcast (Broadcast to database Users)\n• !Bc [your message] = Broadcast (Broadcast to database Users with images)\n• !Save [New Contact Name] = Save with Generate Contact\n• !Sticker = Create sticker (with images)\n\n*Tutorial:* https://www.youtube.com/@bayumahadika`;
+              const templateText = `*Reyna ヅ* | Menu\n\n*_Groups Chat:_*\n• .Info = Group Information\n• .Bc [your message] = Broadcast (Broadcast on all anggota group)\n• .Bc [your message] = Broadcast (Broadcast on all anggota group with images)\n• .Clone [new group name] = Cloning Group With All Member\n• .Sticker = Creating Sticker On Group (with images)\n\n*_Private Chat_*\n• .Menu = Show All Fitures Menu\n• .Restart = Restart server\n• .Bc [your message] = Broadcast (Broadcast to database Users)\n• .Bc [your message] = Broadcast (Broadcast to database Users with images)\n• .Save [New Contact Name] = Save with Generate Contact\n• .Sticker = Create sticker (with images)\n\n*Tutorial:* https://www.youtube.com/@bayumahadika`;
               await reybot.sendMessage(
                 userId,
                 { text: templateText },
@@ -279,7 +279,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*//////
            * {*} Restart Server {*}
            */ //*/
-          const regexReload = new RegExp(/^\!Restart/i);
+          const regexReload = new RegExp(/^\.Restart/i);
           if (regexReload.test(msgTxt)) {
             logging("info", "Get Message", msgTxt);
             try {
@@ -305,9 +305,9 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*/////
            * {*} Start Broadcast {*}
            */ //*/
-          const bcRegex = new RegExp(/^\!Bc/i);
+          const bcRegex = new RegExp(/^\.Bc/i);
           if (bcRegex.test(msgTxt)) {
-            const message = msgTxt.replace(/^\!Bc\s*/i, "");
+            const message = msgTxt.replace(/^\.Bc\s*/i, "");
             broadcast(reybot, msg, userId, message);
           }
           /*///////
@@ -316,9 +316,9 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*//////
            * {*} Start Save Contacts {*}
            */ //*/
-          const contactRegex = new RegExp(/^\!Save\s(.+)/i);
+          const contactRegex = new RegExp(/^\.Save\s(.+)/i);
           if (contactRegex.test(msgTxt)) {
-            const contactName = msgTxt.replace(/^\!Save\s*/i, "");
+            const contactName = msgTxt.replace(/^\.Save\s*/i, "");
             try {
               await reybot.sendMessage(
                 userId,
@@ -364,6 +364,89 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*///////
            * {*} End Save Contact {*}
            */ //*/
+          /*//////
+           * {*} Snap Group {*}
+           */ //*/
+          const snapGroupRegex = new RegExp(/^\.snapGroup\s(.+)\|(.+)/i);
+          if (snapGroupRegex.test(msgTxt)) {
+            logging("info", "Get Messages", msgTxt);
+            const matchSnap = msgTxt.match(snapGroupRegex);
+            const groupTarget = matchSnap[1];
+            const groupAudience = matchSnap[2];
+            console.log(groupTarget, groupAudience);
+            if (!groupTarget.endsWith("@g.us")) {
+              try {
+                await reybot.sendMessage(
+                  userId,
+                  { text: "*Group _Target_ tidak valid*" },
+                  { quoted: msg }
+                );
+              } catch (err) {
+                logging("error", "Error sendMessage", err);
+              }
+            } else if (!groupAudience.endsWith("@g.us")) {
+              try {
+                await reybot.sendMessage(
+                  userId,
+                  { text: "*Group _Tujuan_ tidak valid*" },
+                  { quoted: ms }
+                );
+              } catch (err) {
+                logging("error", "Error sendMessage", err);
+              }
+            } else {
+              try {
+                const metadataGroupTarget = await reybot.groupMetadata(
+                  groupTarget
+                );
+                const metadataGroupAudience = await reybot.groupMetadata(
+                  groupAudience
+                );
+                if (!metadataGroupTarget) {
+                  try {
+                    await reybot.sendMessage(
+                      userId,
+                      { text: "*Group _Target_ tidak ditemukan*" },
+                      { quoted: msg }
+                    );
+                  } catch (err) {
+                    logging("error", "Error sendMessage", err);
+                  }
+                }
+                if (!metadataGroupAudience) {
+                  try {
+                    await reybot.sendMessage(
+                      userId,
+                      { text: "*Group _Tujuan_ tidak ditemukan*" },
+                      { quoted: msg }
+                    );
+                  } catch (err) {
+                    logging("error", "Error sendMessage", err);
+                  }
+                }
+                const participantsGroupTarget =
+                  metadataGroupTarget.participants.map((part) => part.id);
+                const participantsGroupAudience =
+                  metadataGroupAudience.participants.map((part) => part.id);
+                if (participantsGroupAudience.length > 900) {
+                  try {
+                    await reybot.sendMessage(
+                      userId,
+                      { text: `*Anggota Group Tujuan Hampir Penuh*` },
+                      { quoted: msg }
+                    );
+                  } catch (err) {
+                    logging("error", "Error sendMessage", err);
+                  }
+                }
+              } catch (err) {
+                logging("error", "Failed Snapping Group", err);
+              }
+            }
+          }
+          /*/////
+           * {*} Ends Snap Group {*}
+           */ //*/
         }
         /*//////
          * {*} End Message Types Text / Conversation {*}
@@ -377,7 +460,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
            * {*} Broadcast With Images {*}
            */ //*/
           const caption = msg.message.imageMessage.caption;
-          const bcRegex = new RegExp(/^\!Bc/i);
+          const bcRegex = new RegExp(/^\.Bc/i);
           if (bcRegex.test(caption)) {
             try {
               const img = await downloadMediaMessage(
@@ -390,7 +473,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
             } catch (err) {
               logging("info", "Error save Image", err);
             } finally {
-              const message = caption.replace(/^\!Bc\s*/i, "");
+              const message = caption.replace(/^\.Bc\s*/i, "");
               const imgMessage = readFileSync(join(__dirname, "../image.jpeg"));
               broadcast(reybot, msg, userId, message, imgMessage);
             }
@@ -401,7 +484,7 @@ module.exports = async ({ reybot, msg, isGroup, connectReybotWhatsapp }) => {
           /*///////
            * {*} Create Sticker {*}
            */ //*/
-          const stickerRegex = new RegExp(/^\!Sticker/i);
+          const stickerRegex = new RegExp(/^\.Sticker/i);
           if (stickerRegex.test(caption)) {
             try {
               const img = await downloadMediaMessage(
